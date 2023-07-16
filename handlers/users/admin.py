@@ -62,15 +62,10 @@ async def action_btn_info(message: types.Message):
                     Text(equals='Удалить товар'),
                     ChatTypeFilter(chat_type=types.ChatType.PRIVATE))
 async def action_btn_del(message: types.Message):
-    await message.answer(emojize(':yarn:'))
-    res = await sql_object.sql_get_product()
+    await message.answer(emojize(':yarn:') + emojize(':yarn:') + emojize(':yarn:'))
+    res = await defs.viewer_product_caption_photo(message.from_user.id, keyboard=del_product())
     if not res:
-        await message.reply('<b><i><u>Нет товара для удаления</u></i></b>', reply_markup=menu_out_admin())
-    for i in res:
-        ii = json.loads(i['img'])
-        media_group = types.MediaGroup(medias=ii)
-        await bot.send_media_group(message.from_user.id, media_group)
-        await asyncio.sleep(0.2)
+        await message.answer("<b><i><u>Товара пока нет</u></i></B>")
 
 
 # ==========================================================
@@ -179,7 +174,8 @@ async def action_price(message: types.Message, state: FSMContext):
     data_price = (await state.get_data()).get('price')
     json_func = media_group.as_json()
     await sql_object.sql_add_product(json_func, data_name, data_description, data_price)
-    await defs.viewer_product_caption(my_id=message.from_user.id, last=True)
+    await asyncio.sleep(2)
+    await defs.viewer_product_caption_media_group(my_id=message.from_user.id, last=True)
     await state.finish()
     await AdminFilter(is_admin=True).clradm()
 

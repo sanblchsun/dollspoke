@@ -1,10 +1,7 @@
 import json
 import string
-
-from aiogram.dispatcher.filters.builtin import ChatTypeFilter
 from aiogram import types
 from emoji import emojize
-
 from loader import dp, bot
 from aiogram.types import ReplyKeyboardRemove
 
@@ -14,17 +11,13 @@ from aiogram.types import ReplyKeyboardRemove
 @dp.message_handler()
 async def bot_echo(message: types.Message):
     # Фильтр мата
-    if {i.lower().translate(str.maketrans('', '', string.punctuation)) for i in message.text.split(' ')} \
-            .intersection(set(json.load(open('senz.json')))) != set():
-        await bot.send_message(message.from_user.id, emojize(':squinting_face_with_tongue:'))
-        await bot.send_message(message.from_user.id, "<b><i><u>Маты запрещены</u></i></b>", reply_markup=ReplyKeyboardRemove())
-        await message.delete()
-    else:
-        # клюбок
-        # await message.answer(emojize(':yarn:'))
-        # глаз
-        await message.reply(emojize(':eye:'))
-        await message.reply(text='<b><i><u>не верная команда</u></i></b>', reply_markup=ReplyKeyboardRemove())
+    # if {i.lower().translate(str.maketrans('', '', string.punctuation)) for i in message.text.split(' ')} \
+    #         .intersection(set(json.load(open('senz.json')))) != set():
+    #     await bot.send_message(message.from_user.id, emojize(':squinting_face_with_tongue:'))
+    #     await bot.send_message(message.from_user.id, "<b><i><u>Маты запрещены</u></i></b>", reply_markup=ReplyKeyboardRemove())
+    #     await message.delete()
+    await message.reply(emojize(':eye:'))
+    await message.reply(text='<b><i><u>не верная команда</u></i></b>', reply_markup=ReplyKeyboardRemove())
         # await message.reply('<b>жирный</b>, <strong>жирный</strong>'
         #                     '<i>курсив</i>, <em>курсив</em>'
         #                     '<u>подчеркивание</u>, <ins>подчеркивание</ins>'
