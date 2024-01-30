@@ -166,19 +166,36 @@ async def action_price(message: types.Message, state: FSMContext):
         return
 
     await message.answer(emojize(':yarn:'))
+    await AdminStates.count.set()
+    await message.reply('<b><i><u>Укажите количество для товара с фото</u></i></b>', reply_markup=menu_out_admin())
+
+
+@dp.message_handler(AdminFilter(is_admin=True),
+                    ChatTypeFilter(chat_type=types.ChatType.PRIVATE),
+                    content_types=['text'],
+                    state=AdminStates.count)
+async def action_count(message: types.Message, state: FSMContext):
+    try:
+        price = int(message.text)
+        await state.update_data(count=price)
+    except ValueError as e:
+        await message.answer(emojize(':prohibited:'))
+        await message.reply('<b><i><u>Введите количество в формате число</u></i></b>', reply_markup=menu_out_admin())
+        return
+
     await message.reply('<b><i><u>Вы создали единицу номенклатуры в базе</u></i></b>',
                         reply_markup=ReplyKeyboardRemove())
     media_group = (await state.get_data()).get('photo')
     data_name = (await state.get_data()).get('name')
     data_description = (await state.get_data()).get('description')
     data_price = (await state.get_data()).get('price')
+    data_count = (await state.get_data()).get('count')
     json_func = media_group.as_json()
-    await sql_object.sql_add_product(json_func, data_name, data_description, data_price)
+    await sql_object.sql_add_product(json_func, data_name, data_description, data_price, data_count)
     await asyncio.sleep(2)
     await defs.viewer_product_caption_media_group(my_id=message.from_user.id, last=True)
     await state.finish()
     await AdminFilter(is_admin=True).clradm()
-
 
 # =============================================================================================
 

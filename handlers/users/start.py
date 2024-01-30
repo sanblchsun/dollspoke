@@ -1,12 +1,12 @@
 from aiogram import types
 from emoji import emojize
 
-from loader import dp
+from loader import dp, bot
 from keyboards.reply.buttons import menu_clients_start
 from aiogram.dispatcher import FSMContext
 
 
-@dp.message_handler(state='*', commands=['start'])
+@dp.message_handler(state='*', commands=['start', 'menu'])
 async def bot_start(message: types.Message, state: FSMContext):
     await message.answer(emojize(':yarn:'))
     current_state = await state.get_state()
@@ -24,6 +24,9 @@ async def bot_start(message: types.Message, state: FSMContext):
                              f"{message.from_user.full_name}"
                              "</pre>\n "
                              "<b><i>"
-                             "это бот для продажи вязаных кукол, ручной работы"
+                             "это бот для продажи вязаных кукол, ручной работы."
+                             "</i></b>\n"
+                             "<b><i>"
+                             "Нажмите /product"
                              "</i></b>",
                              reply_markup=menu_clients_start())

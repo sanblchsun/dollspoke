@@ -6,6 +6,7 @@ class AdminStates(StatesGroup):
     name = State()
     description = State()
     price = State()
+    count = State()
     finish = State()
 
 class AdminInfoStates(StatesGroup):

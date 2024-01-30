@@ -1,8 +1,6 @@
-import asyncio
 
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo, ReplyKeyboardMarkup, KeyboardButton
 from emoji import emojize
-from loader import sql_object, dp
 
 
 def del_product():
@@ -19,7 +17,7 @@ def pass_step():
     return ikm
 
 
-def edit_like_dislike(heard, like, dislike):
+def edit_like_dislike_and_buy(heard, like, dislike):
     if heard == 0:
         heard = ''
     if like == 0:
@@ -30,4 +28,6 @@ def edit_like_dislike(heard, like, dislike):
     btn1 = InlineKeyboardButton(emojize(':red_heart:') + f'{heard}', callback_data='emo red heart')
     btn2 = InlineKeyboardButton(emojize(':thumbs_up:') + f'{like}', callback_data="emo humbs up")
     btn3 = InlineKeyboardButton(emojize(':thumbs_down:') + f'{dislike}', callback_data='emo thumbs down')
+    # ikb = InlineKeyboardButton("Добавить в карзину", callback_data='3143 add one product in cart')
     return ikm.add(btn1, btn2, btn3)
+

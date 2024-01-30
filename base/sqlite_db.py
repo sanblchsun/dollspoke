@@ -1,4 +1,6 @@
+from datetime import datetime
 import sqlite3 as sq
+
 
 class SQLighter:
 
@@ -10,35 +12,54 @@ class SQLighter:
 
     def start(self):
         with self.con:
-            self.cur.execute("CREATE TABLE IF NOT EXISTS product("
-                             "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                             "img TEXT,"
-                             "name TEXT,"
-                             "description TEXT,"
-                             "price TEXT,"
-                             "like INTEGER DEFAULT 0,"
-                             "dislike INTEGER DEFAULT 0,"
-                             "heard INTEGER DEFAULT 0"
-                             ")"
-                             )
-            self.cur.execute("CREATE TABLE IF NOT EXISTS info("
-                             "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                             "telefon TEXT DEFAULT None,"
-                             "full_name TEXT DEFAULT None,"
-                             "operating_mode TEXT DEFAULT None,"
-                             "delivery TEXT DEFAULT None)"
-                             )
+            self.cur.execute("""
+                             CREATE TABLE IF NOT EXISTS product(
+                                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                 img TEXT NOT NULL,
+                                 name TEXT NOT NULL,
+                                 description TEXT NOT NULL,
+                                 price TEXT NOT NULL,
+                                 count TEXT NOT NULL,
+                                 like INTEGER DEFAULT 0,
+                                 dislike INTEGER DEFAULT 0,
+                                 heard INTEGER DEFAULT 0);
+                             """)
+            self.cur.execute("""
+                             CREATE TABLE IF NOT EXISTS customer(
+                                 id INTEGER PRIMARY KEY,
+                                 date TEXT NOT NULL,
+                                 telefon TEXT,
+                                 delivery TEXT,
+                                 name TEXT,
+                                 email TEXT,
+                                 card TEXT);
+                             """)
+            self.cur.execute("""
+                             CREATE TABLE IF NOT EXISTS prod_cust(
+                                 prodict_id INTEGER NOT NULL,
+                                 customer_id INTEGER NOT NULL,
+                                 FOREIGN KEY (prodict_id) REFERENCES product(id),
+                                 FOREIGN KEY (customer_id) REFERENCES customer(id));
+                             """)
+            self.cur.execute("""
+                             CREATE TABLE IF NOT EXISTS info(
+                                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                 telefon TEXT DEFAULT None,
+                                 full_name TEXT DEFAULT None,
+                                 operating_mode TEXT DEFAULT None,
+                                 delivery TEXT DEFAULT None);
+                             """)
             self.cur.execute("INSERT OR IGNORE  INTO info ('id') VALUES (1)")
 
-
-    async def sql_add_product(self, photo, name, description, price):
+    async def sql_add_product(self, photo, name, description, price, count):
         with self.con:
             return self.cur.execute("INSERT INTO 'product' ("
                                     "img,"
                                     "name,"
                                     "description,"
-                                    "price"
-                                    ") VALUES(?,?,?,?)", (photo, name, description, price))
+                                    "price,"
+                                    "count"
+                                    ") VALUES(?,?,?,?,?)", (photo, name, description, price, count))
 
     async def sql_get_product(self, last=False):
         with self.con:
@@ -81,6 +102,22 @@ class SQLighter:
         with self.con:
             return self.cur.execute(f'SELECT "like", "dislike", "heard" from "product" WHERE "id"={id_product}')
 
+    async def sql_add_cart_and_customer(self, id_product, id_customer):
+        with self.con:
+            self.cur.execute("""INSERT INTO customer (id, date) VALUES (?, ?)""",
+                             (id_customer, datetime.now()))
+            self.cur.execute("""INSERT INTO prod_cust (prodict_id, customer_id) VALUES (?, ?)""",
+                             (id_product, id_customer))
+
+    async def sql_add_cart_only(self, id_product, id_customer):
+        with self.con:
+            self.cur.execute("""INSERT INTO prod_cust (prodict_id, customer_id) VALUES (?, ?)""",
+                             (id_product, id_customer))
+
+    async def sql_get_cart_count_customer(self, id_customer):
+        with self.con:
+            return self.cur.execute(f"""SELECT c2.id, COUNT(pc.prodict_id) as count from customer c2 JOIN 
+            prod_cust pc on c2.id = pc.customer_id WHERE c2.id = {id_customer} GROUP BY c2.id """)
 
 
 def main():
